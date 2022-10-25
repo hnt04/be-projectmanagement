@@ -20,17 +20,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 const mongoose = require("mongoose")
-const mongoURI = process.env.MONGODB_URI;
 
 mongoose
-  .connect(mongoURI)
+  .connect(process.env.MONGO_URI, () => {
+    console.log('Connected to Database!');
+  })
   .then(() => console.log(`DB connected ${mongoURI}`))
   .catch((err) => console.log(err));
 
 app.use('/', indexRouter);
 
 app.use((req, res, next) => {
-    const err = new Error(404,"Not Found","Bad Request");
+    const err = new AppError(404,"Not Found","Bad Request");
     next(err);
 });
 
