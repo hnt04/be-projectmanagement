@@ -5,21 +5,23 @@ const usersController = {};
 
 usersController.createUsers = async (req, res, next) => {
     const {name_assignee,position_assignee, position_assigner} = req.body;
-
+ 
 	try {
-        if(!name_assignee) throw new Error(402,"Bad Request","Create User Error")
-
-        if(position_assigner === "assigner"){           
-            const users = await User.create({
-                name: name_assignee,
-                position: position_assignee         
-            })
-            sendResponse(res,200,true,users,null,"Create User Success")
-        } else {
-            const exception = new Error(`You are not a manager`);
+        if(!name_assignee) throw new AppError(402,"Bad Request","Create User Error")
+       
+        if(!position_assigner === "assigner"){   
+            const exception = new AppError(`You are not a manager`);
                 exception.statusCode = 404;
                 throw exception;
         }
+            
+            const users = await User.create({
+                name: name_assignee,
+                position: position_assignee        
+            })
+            
+            sendResponse(res,200,true,users,null,"Create User Success")
+        
 	} catch (err) {
 		next(err)
 	}
@@ -63,9 +65,9 @@ usersController.getUsers = async (req, res, next) => {
 };
 
 usersController.getSingleUsers = async (req, res, next) => {
-    const {userId} = req.body;
+    const {id} = req.params;
 	try {
-        const users = await User.findById(userId);
+        const users = await User.findById(id);
 
 		if(!users) {
             const exception = new Error("User not found");

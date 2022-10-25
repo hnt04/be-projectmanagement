@@ -5,27 +5,28 @@ const User = require('../models/User.js');
 const taskController = {};
 
 taskController.createTasks = async (req, res, next) => {
-    const {task_name, task_description,assignerId,assigneeId} = req.body;
-
 	try {
+        const {task_name, task_description,assigneeId,status,assignerId} = req.body;
+
         if(!task_name || !task_description) throw new Error(402,"Bad Request","Create Task Error");
 
-        const assigner = await Task.findById(assignerId);
-        if(!assigner) throw new Error(404,"User Not Found","Create Task Error") 
-
-		if(assigner.position === "assigner"){
-			const task = await Task.create({
-                task_name,
-                task_description,
-                assignerId,
-                assigneeId
-            })
-			sendResponse(res,200,true,task,null,"Create Task Success")
-		} else {
-			const exception = new Error(`You are not a manager`);
+        const assigner = await User.findById(assignerId);
+        
+        // if(!assigner) throw new Error(404,"User Not Found","Create Task Error") 
+        
+		if(assigner.position !== "assigner"){
+            const exception = new AppError(`You are not a manager`);
                 exception.statusCode = 404;
                 throw exception;
-		}
+        }
+			const tasks = await Task.create({
+                task_name,
+                task_description,
+                assigner: assignerId,
+                assigneeId,
+                status
+            })
+			sendResponse(res,200,true,tasks,null,"Create Task Success")
 		} catch (err) {
 		next(err)
 	}
@@ -64,17 +65,18 @@ taskController.getTasks = async (req, res, next) => {
 };
 
 taskController.getSingleTask = async (req, res, next) => {
-    const { taskId } = req.body;
+    
 	try {
-        const tasks = await Task.findOne(taskId);
+        const { id } = req.params;
+        const tasks = await Task.findById(id);
 
 		if (!tasks){
-            const exception = new Error(`User not found`);
+            const exception = new Error(`Task not found`);
                 exception.statusCode = 404;
                 throw exception;
         }
 
-            sendResponse(res,200,true,tasks,null,"Get user success")
+            sendResponse(res,200,true,tasks,null,"Get task success")
 	} catch (err) {
 		next(err)
 	};

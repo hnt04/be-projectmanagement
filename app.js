@@ -1,12 +1,13 @@
-const { sendResponse, AppError } =require("./helpers/utils.js")
+const { sendResponse, AppError } = require("./helpers/utils.js");
 require(
-    "dotenv"
-).config();
+  "dotenv"
+  ).config();
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors= require("cors");
+const mongoose = require("mongoose");
 
 var indexRouter = require('./routes/index');
 
@@ -19,10 +20,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
-const mongoose = require("mongoose")
+
+const mongoURI = process.env.MONGODB_URI;
 
 mongoose
-  .connect(process.env.MONGO_URI, () => {
+  .connect(mongoURI, () => {
     console.log('Connected to Database!');
   })
   .then(() => console.log(`DB connected ${mongoURI}`))

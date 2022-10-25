@@ -5,9 +5,15 @@ const taskSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		assigner: {
+		position: {
 			type: mongoose.SchemaTypes.ObjectId, ref: "User"
 		},
+		// assigner: {
+		// 	type: mongoose.SchemaTypes.ObjectId, ref: "User"
+		// },
+		// assignee: {
+		// 	type: mongoose.SchemaTypes.ObjectId, ref: "User"
+		// },
 		task_description: {
 			type: String,
 			required: true,
