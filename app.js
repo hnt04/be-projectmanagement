@@ -30,7 +30,7 @@ mongoose
 app.use('/', indexRouter);
 
 app.use((req, res, next) => {
-    const err = new AppError(404,"Not Found","Bad Request");
+    const err = new Error(404,"Not Found","Bad Request");
     next(err);
 });
 
