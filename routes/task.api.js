@@ -6,7 +6,7 @@ const router = express.Router();
 /**
  * @route POST api/tasks
  * @description create a task
- * @access public
+ * @access private, manager
  */
 router.post('/', createTasks);
 

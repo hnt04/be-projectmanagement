@@ -7,10 +7,11 @@ const userSchema = new mongoose.Schema(
 		},
 		position: {
 			type: String,
-            enum: ['assigner', 'assignee'],
+            enum: ['manager', 'employee'],
 			required: true,
+			default: "employee"
 		},
-        tasks: {type: mongoose.SchemaTypes.ObjectId, ref: "Task"}
+        tasks: [{type: mongoose.SchemaTypes.ObjectId, ref: "Task"}]
 	},
 	{
 		timestamps: true,

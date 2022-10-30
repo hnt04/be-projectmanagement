@@ -1,23 +1,25 @@
 const mongoose = require('mongoose');
 const { sendResponse, AppError}=require("../helpers/utils.js");
+const Task = require('../models/Task.js');
 const User = require('../models/User.js');
 const usersController = {};
 
 usersController.createUsers = async (req, res, next) => {
-    const {name_assignee,position_assignee, position_assigner} = req.body;
+    const {name,position,tasks} = req.body;
  
 	try {
-        if(!name_assignee) throw new AppError(402,"Bad Request","Create User Error")
+        if(!name) throw new AppError(400,"Bad Request","Create User Error")
        
-        if(!position_assigner === "assigner"){   
+        if(!position === "manager"){   
             const exception = new AppError(`You are not a manager`);
                 exception.statusCode = 404;
                 throw exception;
         }
             
             const users = await User.create({
-                name: name_assignee,
-                position: position_assignee        
+                name: name,
+                position: position,
+                tasks        
             })
             
             sendResponse(res,200,true,users,null,"Create User Success")
@@ -26,6 +28,19 @@ usersController.createUsers = async (req, res, next) => {
 		next(err)
 	}
 };
+
+usersController.addReference = async(req,res,next)=>{
+    const {targetName,ref}= req.body
+     try{
+         let found = await User.findOne({tasks:targetName})
+         const refFound = await Task.findById(ref)
+         found.task_name=ref
+         found = await found.save()
+         sendResponse(res,200,true,found,null,"Add reference success")
+     } catch(err) {
+         next(err)
+     }
+ };
 
 usersController.getUsers = async (req, res, next) => {
 	// const filter = {name,position,task}
@@ -42,7 +57,7 @@ usersController.getUsers = async (req, res, next) => {
 
         filterKeys.forEach((key) => {
           if (!allowedFilter.includes(key)) {
-            const exception = new Error(`Query ${key} is not allowed`);
+            const exception = new AppError(`Query ${key} is not allowed`);
             exception.statusCode = 401;
             throw exception;
           }
@@ -70,7 +85,7 @@ usersController.getSingleUsers = async (req, res, next) => {
         const users = await User.findById(id);
 
 		if(!users) {
-            const exception = new Error("User not found");
+            const exception = new AppError("User not found");
             exception.statusCode = 404;
             throw exception;
         } 
@@ -88,8 +103,8 @@ usersController.editUsers = async (req, res, next) => {
     const options = { new:true }
 
     try{    
-        if(!position_assigner === "assigner"  ) {
-            const exception = new Error(`You are not a manager`);
+        if(!position_assigner === "manager"  ) {
+            const exception = new AppError(`You are not a manager`);
             exception.statusCode = 404;
             throw exception;
         }
@@ -111,14 +126,14 @@ usersController.deleteUsers = async (req, res, next) => {
     const options = {new:true}
 	try {
 		if(!position_assigner === "assigner") {
-            const exception = new Error(`You are not a manager`);
+            const exception = new AppError(`You are not a manager`);
                 exception.statusCode = 404;
                 throw exception;
         }
 
         const updated = await User.findByIdAndDelete(id,options)
 
-        sendResponse(res,200,true,{data:updated},null,"Delete user success")
+        sendResponse(res,200,true,updated,null,"Delete user success")
 
     } catch(err){
         next(err)

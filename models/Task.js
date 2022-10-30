@@ -5,16 +5,16 @@ const taskSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		position: {
+		assignee: [{
+			type: mongoose.SchemaTypes.ObjectId, ref: "User"
+		}],
+		assigner: {
 			type: mongoose.SchemaTypes.ObjectId, ref: "User"
 		},
-		// assigner: {
-		// 	type: mongoose.SchemaTypes.ObjectId, ref: "User"
-		// },
 		// assignee: {
 		// 	type: mongoose.SchemaTypes.ObjectId, ref: "User"
 		// },
-		task_description: {
+		description: {
 			type: String,
 			required: true,
 		},
@@ -24,6 +24,15 @@ const taskSchema = new mongoose.Schema(
 			required: true,
 			default: "PENDING",
 		},
+		createAt: {
+			type: Date,
+			require: true,
+			default: Date.now(),
+		},
+		updateAt: {
+			type: Date,
+			require: true,
+		}
 	},
 	{
 		timestamps: true,
